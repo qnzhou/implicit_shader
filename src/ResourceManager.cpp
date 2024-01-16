@@ -12,8 +12,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,28 +30,33 @@
 
 using namespace wgpu;
 
-ShaderModule ResourceManager::loadShaderModule(const path& path, Device device) {
-	std::ifstream file(path);
-	if (!file.is_open()) {
-		return nullptr;
-	}
-	file.seekg(0, std::ios::end);
-	size_t size = file.tellg();
-	std::string shaderSource(size, ' ');
-	file.seekg(0);
-	file.read(shaderSource.data(), size);
+namespace implicit_shader {
 
-	ShaderModuleWGSLDescriptor shaderCodeDesc{};
-	shaderCodeDesc.chain.next = nullptr;
-	shaderCodeDesc.chain.sType = SType::ShaderModuleWGSLDescriptor;
-	ShaderModuleDescriptor shaderDesc{};
-	shaderDesc.nextInChain = &shaderCodeDesc.chain;
+ShaderModule ResourceManager::loadShaderModule(const path& path,
+                                               Device device) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        return nullptr;
+    }
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    std::string shaderSource(size, ' ');
+    file.seekg(0);
+    file.read(shaderSource.data(), size);
+
+    ShaderModuleWGSLDescriptor shaderCodeDesc{};
+    shaderCodeDesc.chain.next = nullptr;
+    shaderCodeDesc.chain.sType = SType::ShaderModuleWGSLDescriptor;
+    ShaderModuleDescriptor shaderDesc{};
+    shaderDesc.nextInChain = &shaderCodeDesc.chain;
 #ifdef WEBGPU_BACKEND_WGPU
-	shaderCodeDesc.code = shaderSource.c_str();
-	shaderDesc.hintCount = 0;
-	shaderDesc.hints = nullptr;
-#else // WEBGPU_BACKEND_WGPU
-	shaderCodeDesc.code = shaderSource.c_str();
-#endif // WEBGPU_BACKEND_WGPU
-	return device.createShaderModule(shaderDesc);
+    shaderCodeDesc.code = shaderSource.c_str();
+    shaderDesc.hintCount = 0;
+    shaderDesc.hints = nullptr;
+#else   // WEBGPU_BACKEND_WGPU
+    shaderCodeDesc.code = shaderSource.c_str();
+#endif  // WEBGPU_BACKEND_WGPU
+    return device.createShaderModule(shaderDesc);
 }
+
+}  // namespace implicit_shader

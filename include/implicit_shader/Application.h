@@ -12,8 +12,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,46 +28,51 @@
 
 #include <webgpu/webgpu.hpp>
 
+namespace implicit_shader {
+
 class Application {
-public:
-	// A function called only once at the beginning. Returns false is init failed.
-	bool onInit();
+   public:
+    // A function called only once at the beginning. Returns false is init
+    // failed.
+    bool onInit();
 
-	// Where the GPU computation is actually issued
-	void onCompute();
+    // Where the GPU computation is actually issued
+    void onCompute();
 
-	// A function called only once at the very end.
-	void onFinish();
+    // A function called only once at the very end.
+    void onFinish();
 
-private:
-	// Detailed steps
-	bool initDevice();
-	void terminateDevice();
+   private:
+    // Detailed steps
+    bool initDevice();
+    void terminateDevice();
 
-	void initBindGroup();
-	void terminateBindGroup();
+    void initBindGroup();
+    void terminateBindGroup();
 
-	void initBindGroupLayout();
-	void terminateBindGroupLayout();
+    void initBindGroupLayout();
+    void terminateBindGroupLayout();
 
-	void initComputePipeline();
-	void terminateComputePipeline();
+    void initComputePipeline();
+    void terminateComputePipeline();
 
-	void initBuffers();
-	void terminateBuffers();
+    void initBuffers();
+    void terminateBuffers();
 
-private:
-	uint32_t m_bufferSize;
-	// Everything that is initialized in `onInit` and needed in `onCompute`.
-	wgpu::Instance m_instance = nullptr;
-	wgpu::Device m_device = nullptr;
-	wgpu::PipelineLayout m_pipelineLayout = nullptr;
-	wgpu::ComputePipeline m_pipeline = nullptr;
-	wgpu::Buffer m_inputBuffer = nullptr;
-	wgpu::Buffer m_outputBuffer = nullptr;
-	wgpu::Buffer m_mapBuffer = nullptr;
-	wgpu::BindGroup m_bindGroup = nullptr;
-	wgpu::BindGroupLayout m_bindGroupLayout = nullptr;
-	std::unique_ptr<wgpu::ErrorCallback> m_uncapturedErrorCallback;
-	std::unique_ptr<wgpu::DeviceLostCallback> m_deviceLostCallback;
+   private:
+    uint32_t m_bufferSize;
+    // Everything that is initialized in `onInit` and needed in `onCompute`.
+    wgpu::Instance m_instance = nullptr;
+    wgpu::Device m_device = nullptr;
+    wgpu::PipelineLayout m_pipelineLayout = nullptr;
+    wgpu::ComputePipeline m_pipeline = nullptr;
+    wgpu::Buffer m_inputBuffer = nullptr;
+    wgpu::Buffer m_outputBuffer = nullptr;
+    wgpu::Buffer m_mapBuffer = nullptr;
+    wgpu::BindGroup m_bindGroup = nullptr;
+    wgpu::BindGroupLayout m_bindGroupLayout = nullptr;
+    std::unique_ptr<wgpu::ErrorCallback> m_uncapturedErrorCallback;
+    std::unique_ptr<wgpu::DeviceLostCallback> m_deviceLostCallback;
 };
+
+}  // namespace implicit_shader
