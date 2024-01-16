@@ -27,6 +27,7 @@
 #pragma once
 
 #include <webgpu/webgpu.hpp>
+#include <string>
 
 namespace implicit_shader {
 
@@ -34,7 +35,7 @@ class Application {
    public:
     // A function called only once at the beginning. Returns false is init
     // failed.
-    bool onInit();
+    bool onInit(const std::string& shader_path);
 
     // Where the GPU computation is actually issued
     void onCompute();
@@ -53,7 +54,7 @@ class Application {
     void initBindGroupLayout();
     void terminateBindGroupLayout();
 
-    void initComputePipeline();
+    void initComputePipeline(const std::string& shader_path);
     void terminateComputePipeline();
 
     void initBuffers();

@@ -42,11 +42,11 @@ using namespace wgpu;
 
 namespace implicit_shader {
 
-bool Application::onInit() {
+bool Application::onInit(const std::string& shader_path) {
     m_bufferSize = 64 * sizeof(float);
     if (!initDevice()) return false;
     initBindGroupLayout();
-    initComputePipeline();
+    initComputePipeline(shader_path);
     initBuffers();
     initBindGroup();
     return true;
@@ -191,10 +191,10 @@ void Application::terminateBindGroupLayout() {
     wgpuBindGroupLayoutRelease(m_bindGroupLayout);
 }
 
-void Application::initComputePipeline() {
+void Application::initComputePipeline(const std::string& shader_path) {
     // Load compute shader
     ShaderModule computeShaderModule = ResourceManager::loadShaderModule(
-        RESOURCE_DIR "/compute-shader.wgsl", m_device);
+        shader_path, m_device);
 
     // Create compute pipeline layout
     PipelineLayoutDescriptor pipelineLayoutDesc;

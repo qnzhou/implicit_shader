@@ -4,7 +4,7 @@
 
 int main(int, char**) {
     implicit_shader::Application app;
-    app.onInit();
+    app.onInit(RESOURCE_DIR "/compute-shader.wgsl");
     app.onCompute();
     app.onFinish();
     return 0;
