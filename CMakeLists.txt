@@ -14,7 +14,7 @@ set_target_properties(imshader PROPERTIES
     COMPILE_WARNING_AS_ERROR ON
 )
 target_include_directories(imshader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
-target_compile_definitions(imshader PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_LIST_DIR}/shaders/")
+target_compile_definitions(imshader PUBLIC -DSHADER_DIR="${CMAKE_CURRENT_LIST_DIR}/shaders/")
 add_library(implicit_shader::imshader ALIAS imshader)
 
 add_executable(implicit_shader ${CMAKE_CURRENT_LIST_DIR}/app/main.cpp)

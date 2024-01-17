@@ -140,7 +140,7 @@ int main(int, char**) {
     auto grid = generate_grid(NX, NY, NZ);
     const auto num_vertices = grid.num_vertices();
 
-    app.onInit(RESOURCE_DIR "/key.wgsl", num_vertices);
+    app.onInit(SHADER_DIR "/key.wgsl", num_vertices);
     app.onCompute(grid.vertices);
     app.onFinish();
 
