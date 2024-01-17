@@ -214,7 +214,8 @@ void Application::initBuffers() {
     bufferDesc.mappedAtCreation = false;
     bufferDesc.size = m_num_points * 4 * sizeof(float);
 
-    bufferDesc.usage = BufferUsage::Storage | BufferUsage::CopyDst | BufferUsage::CopySrc;
+    bufferDesc.usage =
+        BufferUsage::Storage | BufferUsage::CopyDst | BufferUsage::CopySrc;
     m_inputBuffer = m_device.createBuffer(bufferDesc);
 
     // Create an intermediary buffer to which we copy the output and that can be
@@ -280,9 +281,7 @@ void Application::onCompute(std::span<float> buffer) {
                     (const float*)m_mapBuffer.getConstMappedRange(
                         0, m_num_points * sizeof(float));
                 for (size_t i = 0; i < m_num_points; ++i) {
-                    std::cout << "input " << buffer[i * 4] << ", "
-                              << buffer[i * 4 + 1] << ", " << buffer[i * 4 + 2]
-                              << " became " << output[i*4 + 3] << std::endl;
+                    buffer[i * 4 + 3] = output[i * 4 + 3];
                 }
                 m_mapBuffer.unmap();
             }

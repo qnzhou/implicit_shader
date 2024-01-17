@@ -16,8 +16,13 @@ int main(int, char**) {
         data[i * 4 + 2] = (z - 4) / 4.0f;
         data[i * 4 + 3] = -1;
     }
-    app.onInit(RESOURCE_DIR "/cube.wgsl", N);
+    app.onInit(RESOURCE_DIR "/key.wgsl", N);
     app.onCompute(data);
     app.onFinish();
+
+    for (size_t i = 0; i < N; i++) {
+        std::cout << data[i * 4] << " " << data[i * 4 + 1] << " "
+                  << data[i * 4 + 2] << ": " << data[i * 4 + 3] << std::endl;
+    }
     return 0;
 }
