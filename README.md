@@ -25,3 +25,9 @@ app.onFinish();
 
 // The d values in `buffer` has been udpated.
 ```
+
+## Shader
+
+See the [cube.wgsl](shaders/cube.wgsl) as an example to create implicit function shaders.
+
+A more comple example is [key.wgsl](shader/key.wgsl).
