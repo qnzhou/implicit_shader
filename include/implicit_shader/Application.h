@@ -28,6 +28,7 @@
 
 #include <webgpu/webgpu.hpp>
 #include <string>
+#include <span>
 
 namespace implicit_shader {
 
@@ -35,10 +36,10 @@ class Application {
    public:
     // A function called only once at the beginning. Returns false is init
     // failed.
-    bool onInit(const std::string& shader_path);
+    bool onInit(const std::string& shader_path, size_t num_points);
 
     // Where the GPU computation is actually issued
-    void onCompute();
+    void onCompute(std::span<float> buffer);
 
     // A function called only once at the very end.
     void onFinish();
@@ -61,6 +62,7 @@ class Application {
     void terminateBuffers();
 
    private:
+    uint32_t m_num_points;
     uint32_t m_bufferSize;
     // Everything that is initialized in `onInit` and needed in `onCompute`.
     wgpu::Instance m_instance = nullptr;

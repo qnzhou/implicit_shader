@@ -42,8 +42,8 @@ using namespace wgpu;
 
 namespace implicit_shader {
 
-bool Application::onInit(const std::string& shader_path) {
-    m_bufferSize = 64 * sizeof(float);
+bool Application::onInit(const std::string& shader_path, size_t num_points) {
+    m_num_points = num_points;
     if (!initDevice()) return false;
     initBindGroupLayout();
     initComputePipeline(shader_path);
@@ -86,7 +86,7 @@ bool Application::initDevice() {
     requiredLimits.limits.maxUniformBufferBindingSize = 16 * 4 * sizeof(float);
     requiredLimits.limits.minStorageBufferOffsetAlignment =
         supportedLimits.limits.minStorageBufferOffsetAlignment;
-    requiredLimits.limits.maxBufferSize = m_bufferSize;
+    requiredLimits.limits.maxBufferSize = m_num_points * 4 * sizeof(float);
     requiredLimits.limits.maxTextureDimension1D = 2048;
     requiredLimits.limits.maxTextureDimension2D = 2048;
     requiredLimits.limits.maxTextureDimension3D = 2048;
@@ -101,7 +101,8 @@ bool Application::initDevice() {
     requiredLimits.limits.maxComputeWorkgroupSizeZ = 1;
     requiredLimits.limits.maxComputeInvocationsPerWorkgroup = 32;
     requiredLimits.limits.maxComputeWorkgroupsPerDimension = 2;
-    requiredLimits.limits.maxStorageBufferBindingSize = m_bufferSize;
+    requiredLimits.limits.maxStorageBufferBindingSize =
+        m_num_points * 4 * sizeof(float);
     requiredLimits.limits.minUniformBufferOffsetAlignment = 256;
 
     // Create device
@@ -144,19 +145,13 @@ void Application::terminateDevice() {
 
 void Application::initBindGroup() {
     // Create compute bind group
-    std::vector<BindGroupEntry> entries(2, Default);
+    std::vector<BindGroupEntry> entries(1, Default);
 
-    // Input buffer
+    // Input/output buffer
     entries[0].binding = 0;
     entries[0].buffer = m_inputBuffer;
     entries[0].offset = 0;
-    entries[0].size = m_bufferSize;
-
-    // Output buffer
-    entries[1].binding = 1;
-    entries[1].buffer = m_outputBuffer;
-    entries[1].offset = 0;
-    entries[1].size = m_bufferSize;
+    entries[0].size = m_num_points * 4 * sizeof(float);
 
     BindGroupDescriptor bindGroupDesc;
     bindGroupDesc.layout = m_bindGroupLayout;
@@ -169,17 +164,12 @@ void Application::terminateBindGroup() { wgpuBindGroupRelease(m_bindGroup); }
 
 void Application::initBindGroupLayout() {
     // Create bind group layout
-    std::vector<BindGroupLayoutEntry> bindings(2, Default);
+    std::vector<BindGroupLayoutEntry> bindings(1, Default);
 
-    // Input buffer
+    // Input/output buffer
     bindings[0].binding = 0;
-    bindings[0].buffer.type = BufferBindingType::ReadOnlyStorage;
+    bindings[0].buffer.type = BufferBindingType::Storage;
     bindings[0].visibility = ShaderStage::Compute;
-
-    // Output buffer
-    bindings[1].binding = 1;
-    bindings[1].buffer.type = BufferBindingType::Storage;
-    bindings[1].visibility = ShaderStage::Compute;
 
     BindGroupLayoutDescriptor bindGroupLayoutDesc;
     bindGroupLayoutDesc.entryCount = (uint32_t)bindings.size();
@@ -193,8 +183,8 @@ void Application::terminateBindGroupLayout() {
 
 void Application::initComputePipeline(const std::string& shader_path) {
     // Load compute shader
-    ShaderModule computeShaderModule = ResourceManager::loadShaderModule(
-        shader_path, m_device);
+    ShaderModule computeShaderModule =
+        ResourceManager::loadShaderModule(shader_path, m_device);
 
     // Create compute pipeline layout
     PipelineLayoutDescriptor pipelineLayoutDesc;
@@ -207,7 +197,7 @@ void Application::initComputePipeline(const std::string& shader_path) {
     ComputePipelineDescriptor computePipelineDesc;
     computePipelineDesc.compute.constantCount = 0;
     computePipelineDesc.compute.constants = nullptr;
-    computePipelineDesc.compute.entryPoint = "computeStuff";
+    computePipelineDesc.compute.entryPoint = "run";
     computePipelineDesc.compute.module = computeShaderModule;
     computePipelineDesc.layout = m_pipelineLayout;
     m_pipeline = m_device.createComputePipeline(computePipelineDesc);
@@ -222,13 +212,10 @@ void Application::initBuffers() {
     // Create input/output buffers
     BufferDescriptor bufferDesc;
     bufferDesc.mappedAtCreation = false;
-    bufferDesc.size = m_bufferSize;
+    bufferDesc.size = m_num_points * 4 * sizeof(float);
 
-    bufferDesc.usage = BufferUsage::Storage | BufferUsage::CopyDst;
+    bufferDesc.usage = BufferUsage::Storage | BufferUsage::CopyDst | BufferUsage::CopySrc;
     m_inputBuffer = m_device.createBuffer(bufferDesc);
-
-    bufferDesc.usage = BufferUsage::Storage | BufferUsage::CopySrc;
-    m_outputBuffer = m_device.createBuffer(bufferDesc);
 
     // Create an intermediary buffer to which we copy the output and that can be
     // used for reading into the CPU memory.
@@ -240,23 +227,16 @@ void Application::terminateBuffers() {
     m_inputBuffer.destroy();
     wgpuBufferRelease(m_inputBuffer);
 
-    m_outputBuffer.destroy();
-    wgpuBufferRelease(m_outputBuffer);
-
     m_mapBuffer.destroy();
     wgpuBufferRelease(m_mapBuffer);
 }
 
-void Application::onCompute() {
+void Application::onCompute(std::span<float> buffer) {
     Queue queue = m_device.getQueue();
 
     // Fill in input buffer
-    std::vector<float> input(m_bufferSize / sizeof(float));
-    for (size_t i = 0; i < input.size(); ++i) {
-        input[i] = 0.1f * i;
-    }
-    queue.writeBuffer(m_inputBuffer, 0, input.data(),
-                      input.size() * sizeof(float));
+    queue.writeBuffer(m_inputBuffer, 0, buffer.data(),
+                      buffer.size() * sizeof(float));
 
     // Initialize a command encoder
     CommandEncoderDescriptor encoderDesc = Default;
@@ -272,7 +252,7 @@ void Application::onCompute() {
     computePass.setPipeline(m_pipeline);
     computePass.setBindGroup(0, m_bindGroup, 0, nullptr);
 
-    uint32_t invocationCount = m_bufferSize / sizeof(float);
+    uint32_t invocationCount = m_num_points;
     uint32_t workgroupSize = 32;
     // This ceils invocationCount / workgroupSize
     uint32_t workgroupCount =
@@ -283,7 +263,8 @@ void Application::onCompute() {
     computePass.end();
 
     // Before encoder.finish
-    encoder.copyBufferToBuffer(m_outputBuffer, 0, m_mapBuffer, 0, m_bufferSize);
+    encoder.copyBufferToBuffer(m_inputBuffer, 0, m_mapBuffer, 0,
+                               m_num_points * 4 * sizeof(float));
 
     // Encode and submit the GPU commands
     CommandBuffer commands = encoder.finish(CommandBufferDescriptor{});
@@ -292,14 +273,16 @@ void Application::onCompute() {
     // Print output
     bool done = false;
     auto handle = m_mapBuffer.mapAsync(
-        MapMode::Read, 0, m_bufferSize, [&](BufferMapAsyncStatus status) {
+        MapMode::Read, 0, m_num_points * 4 * sizeof(float),
+        [&](BufferMapAsyncStatus status) {
             if (status == BufferMapAsyncStatus::Success) {
                 const float* output =
-                    (const float*)m_mapBuffer.getConstMappedRange(0,
-                                                                  m_bufferSize);
-                for (size_t i = 0; i < input.size(); ++i) {
-                    std::cout << "input " << input[i] << " became " << output[i]
-                              << std::endl;
+                    (const float*)m_mapBuffer.getConstMappedRange(
+                        0, m_num_points * sizeof(float));
+                for (size_t i = 0; i < m_num_points; ++i) {
+                    std::cout << "input " << buffer[i * 4] << ", "
+                              << buffer[i * 4 + 1] << ", " << buffer[i * 4 + 2]
+                              << " became " << output[i*4 + 3] << std::endl;
                 }
                 m_mapBuffer.unmap();
             }
