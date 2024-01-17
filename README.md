@@ -30,4 +30,4 @@ app.onFinish();
 
 See the [cube.wgsl](shaders/cube.wgsl) as an example to create implicit function shaders.
 
-A more comple example is [key.wgsl](shader/key.wgsl).
+A more comple example is [key.wgsl](shaders/key.wgsl).
