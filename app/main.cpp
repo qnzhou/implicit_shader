@@ -11,7 +11,7 @@ struct Grid {
     size_t num_vertices() const { return vertices.size() / 4; }
 };
 
-Grid generate_grid(uint32_t NX, uint32_t NY, uint32_t NZ) {
+Grid generate_grid(uint32_t NX, uint32_t NY, uint32_t NZ, float sx=1, float sy=1, float sz=1) {
     Grid grid;
     grid.vertices.resize((NX + 1) * (NY + 1) * (NZ + 1) * 4);
     grid.hexes.resize(NX * NY * NZ * 8);
@@ -22,9 +22,9 @@ Grid generate_grid(uint32_t NX, uint32_t NY, uint32_t NZ) {
         for (uint32_t j = 0; j <= NY; j++) {
             for (uint32_t k = 0; k <= NZ; k++) {
                 uint32_t idx = i * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k;
-                grid.vertices[idx * 4] = i / (float)N - (float)NX / (float)N * 0.5f;
-                grid.vertices[idx * 4 + 1] = j / (float)N - (float)NY / (float)N * 0.5f;
-                grid.vertices[idx * 4 + 2] = k / (float)N - (float)NZ / (float)N * 0.5f;
+                grid.vertices[idx * 4] = (i / (float)N - (float)NX / (float)N * 0.5f) * sx;
+                grid.vertices[idx * 4 + 1] = (j / (float)N - (float)NY / (float)N * 0.5f) * sy;
+                grid.vertices[idx * 4 + 2] = (k / (float)N - (float)NZ / (float)N * 0.5f) * sz;
                 grid.vertices[idx * 4 + 3] = -1;
             }
         }
@@ -135,12 +135,12 @@ void save_grid(const Grid& grid) {
 }
 
 int main(int, char**) {
-    constexpr size_t NX = 64, NY = 128, NZ = 64;
-    auto grid = generate_grid(NX, NY, NZ);
+    constexpr size_t NX = 64, NY = 64, NZ = 64;
+    auto grid = generate_grid(NX, NY, NZ, 2, 2, 2);
     const auto num_vertices = grid.num_vertices();
 
     implicit_shader::Application app;
-    app.onInit(SHADER_DIR "/key.wgsl", num_vertices);
+    app.onInit(SHADER_DIR "/cables.wgsl", num_vertices);
     app.onCompute(grid.vertices);
     app.onFinish();
 
