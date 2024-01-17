@@ -135,11 +135,11 @@ void save_grid(const Grid& grid) {
 }
 
 int main(int, char**) {
-    implicit_shader::Application app;
     constexpr size_t NX = 64, NY = 128, NZ = 64;
     auto grid = generate_grid(NX, NY, NZ);
     const auto num_vertices = grid.num_vertices();
 
+    implicit_shader::Application app;
     app.onInit(SHADER_DIR "/key.wgsl", num_vertices);
     app.onCompute(grid.vertices);
     app.onFinish();
