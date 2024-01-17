@@ -3,6 +3,7 @@ project(implicit_shader)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 include(webgpu)
+include(mshio)
 
 file(GLOB INC_FILES ${CMAKE_CURRENT_LIST_DIR}/include/*.h)
 file(GLOB SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
@@ -17,7 +18,7 @@ target_compile_definitions(imshader PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_LIST_
 add_library(implicit_shader::imshader ALIAS imshader)
 
 add_executable(implicit_shader ${CMAKE_CURRENT_LIST_DIR}/app/main.cpp)
-target_link_libraries(implicit_shader webgpu::webgpu implicit_shader::imshader)
+target_link_libraries(implicit_shader webgpu::webgpu implicit_shader::imshader mshio::mshio)
 set_target_properties(implicit_shader PROPERTIES
     CXX_STANDARD 20
     COMPILE_WARNING_AS_ERROR ON
