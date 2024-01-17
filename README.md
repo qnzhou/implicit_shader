@@ -9,7 +9,7 @@ Here is the code snippet for evaluating the function at an array of points.
 
 // Input/output buffer.
 // The x,y,z values are the evaluation points.
-// The d values are used to store the evaluation result.
+// The d values are placeholder for storing the evaluation result.
 std::vector<float> buffer = {
     x0, y0, z0, d0,
     x1, y1, z1, d1,
@@ -23,5 +23,5 @@ app.onInit(shader_filename, num_pts);
 app.onCompute(buffer);
 app.onFinish();
 
-// The d values `buffer` has been udpated.
+// The d values in `buffer` has been udpated.
 ```
