@@ -140,7 +140,7 @@ int main(int, char**) {
     const auto num_vertices = grid.num_vertices();
 
     implicit_shader::Application app;
-    app.onInit(SHADER_DIR "/cables.wgsl", num_vertices);
+    app.onInit(SHADER_DIR "/cables/cable_0.wgsl", num_vertices);
     app.onCompute(grid.vertices);
     app.onFinish();
 
