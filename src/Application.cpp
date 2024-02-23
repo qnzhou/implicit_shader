@@ -185,6 +185,7 @@ void Application::initComputePipeline(const std::string& shader_path) {
     // Load compute shader
     ShaderModule computeShaderModule =
         ResourceManager::loadShaderModule(shader_path, m_device);
+    assert(computeShaderModule != nullptr);
 
     // Create compute pipeline layout
     PipelineLayoutDescriptor pipelineLayoutDesc;
