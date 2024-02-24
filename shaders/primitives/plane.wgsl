@@ -3,15 +3,14 @@
 
 fn sdf(p : vec3<f32>) -> vec4<f32> {
     let c: vec3<f32> = vec3<f32>(params[0], params[1], params[2]);
-    let r: f32 = params[3];
+    let n: vec3<f32> = vec3<f32>(params[3], params[4], params[5]);
+
     let d: vec3<f32> = p - c;
-    let l: f32 = length(p - c);
-    if (l != 0) {
-        return vec4<f32>(d / l, l - r);
-    } else {
-        return vec4<f32>(0, 0, 0, -r);
-    }
+    let v: vec3<f32> = normalize(n);
+
+    return vec4<f32>(v, dot(d, v));
 }
+
 
 @compute @workgroup_size(32)
 fn run(@builtin(global_invocation_id) id: vec3<u32>) {

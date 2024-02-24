@@ -1,10 +1,14 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <span>
+#include <string>
 
 namespace implicit_shader {
 using Scalar = float;
+using Point = std::array<Scalar, 3>;
+
 
 class Shader;
 
@@ -13,10 +17,9 @@ class ImplicitFunction
 public:
     static constexpr size_t BATCH_SIZE = 1024;
 
-public:
+    ImplicitFunction(const std::string shader_path, size_t num_parameters);
     virtual ~ImplicitFunction();
 
-public:
     /**
      * Evaluating an implicit function
      *
@@ -28,10 +31,19 @@ public:
      *                       group contains the gradient at the query point, and the last float
      *                       is the function value at the query point.
      */
-    virtual void evaluate(std::span<Scalar> buffer) = 0;
+    void evaluate(std::span<Scalar> buffer);
+
 
 protected:
-    std::shared_ptr<Shader> m_shader;
+    /**
+     * Get the parameters of the implicit function.
+     *
+     * @return A span of the parameters.
+     */
+    virtual std::span<Scalar> get_parameters() = 0;
+
+protected:
+    std::unique_ptr<Shader> m_shader;
 };
 
 } // namespace implicit_shader

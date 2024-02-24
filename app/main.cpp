@@ -158,7 +158,7 @@ int main(int, char**)
     auto grid = generate_grid(NX, NY, NZ, 2, 2, 2);
     const auto num_vertices = grid.num_vertices();
 
-    implicit_shader::Sphere shader({0, 0, 0}, 0.5);
+    implicit_shader::Sphere shader({0, 0, 0}, 0.1);
     shader.evaluate(grid.gradients);
 
     save_grid(grid);
