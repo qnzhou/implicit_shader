@@ -1,17 +1,20 @@
-#include <implicit_shader/Application.h>
+#include <implicit_shader/primitives.h>
 #include <mshio/mshio.h>
 
 #include <iostream>
 #include <vector>
 
-struct Grid {
+struct Grid
+{
     std::vector<float> vertices;
     std::vector<uint32_t> hexes;
+    std::vector<float> gradients;
 
     size_t num_vertices() const { return vertices.size() / 4; }
 };
 
-Grid generate_grid(uint32_t NX, uint32_t NY, uint32_t NZ, float sx=1, float sy=1, float sz=1) {
+Grid generate_grid(uint32_t NX, uint32_t NY, uint32_t NZ, float sx = 1, float sy = 1, float sz = 1)
+{
     Grid grid;
     grid.vertices.resize((NX + 1) * (NY + 1) * (NZ + 1) * 4);
     grid.hexes.resize(NX * NY * NZ * 8);
@@ -34,30 +37,25 @@ Grid generate_grid(uint32_t NX, uint32_t NY, uint32_t NZ, float sx=1, float sy=1
         for (uint32_t j = 0; j < NY; j++) {
             for (uint32_t k = 0; k < NZ; k++) {
                 uint32_t idx = i * NY * NZ + j * NZ + k;
-                grid.hexes[idx * 8] =
-                    i * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k;
-                grid.hexes[idx * 8 + 1] =
-                    i * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k + 1;
-                grid.hexes[idx * 8 + 2] =
-                    i * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k + 1;
-                grid.hexes[idx * 8 + 3] =
-                    i * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k;
-                grid.hexes[idx * 8 + 4] =
-                    (i + 1) * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k;
-                grid.hexes[idx * 8 + 5] =
-                    (i + 1) * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k + 1;
+                grid.hexes[idx * 8] = i * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k;
+                grid.hexes[idx * 8 + 1] = i * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k + 1;
+                grid.hexes[idx * 8 + 2] = i * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k + 1;
+                grid.hexes[idx * 8 + 3] = i * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k;
+                grid.hexes[idx * 8 + 4] = (i + 1) * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k;
+                grid.hexes[idx * 8 + 5] = (i + 1) * (NY + 1) * (NZ + 1) + j * (NZ + 1) + k + 1;
                 grid.hexes[idx * 8 + 6] =
                     (i + 1) * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k + 1;
-                grid.hexes[idx * 8 + 7] =
-                    (i + 1) * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k;
+                grid.hexes[idx * 8 + 7] = (i + 1) * (NY + 1) * (NZ + 1) + (j + 1) * (NZ + 1) + k;
             }
         }
     }
 
+    grid.gradients = grid.vertices;
     return grid;
 }
 
-void save_grid(const Grid& grid) {
+void save_grid(const Grid& grid)
+{
     const auto num_vertices = grid.num_vertices();
     const auto num_hexes = grid.hexes.size() / 8;
 
@@ -113,9 +111,10 @@ void save_grid(const Grid& grid) {
         }
     }
 
+    spec.node_data.resize(2);
+
     // Save sdf
     {
-        spec.node_data.resize(1);
         auto& data = spec.node_data[0];
         auto& header = data.header;
         header.string_tags = {"sdf"};
@@ -127,22 +126,40 @@ void save_grid(const Grid& grid) {
         for (size_t i = 0; i < num_vertices; i++) {
             auto& entry = data_entries[i];
             entry.tag = i + 1;
-            entry.data = {grid.vertices[i * 4 + 3]};
+            entry.data = {grid.gradients[i * 4 + 3]};
+        }
+    }
+    // Save gradient
+    {
+        auto& data = spec.node_data[1];
+        auto& header = data.header;
+        header.string_tags = {"grad"};
+        header.real_tags = {0};
+        header.int_tags = {0, 3, static_cast<int>(num_vertices), 0};
+
+        auto& data_entries = data.entries;
+        data_entries.resize(num_vertices);
+        for (size_t i = 0; i < num_vertices; i++) {
+            auto& entry = data_entries[i];
+            entry.tag = i + 1;
+            entry.data = {
+                grid.gradients[i * 4],
+                grid.gradients[i * 4 + 1],
+                grid.gradients[i * 4 + 2]};
         }
     }
 
     mshio::save_msh("grid.msh", spec);
 }
 
-int main(int, char**) {
+int main(int, char**)
+{
     constexpr size_t NX = 64, NY = 64, NZ = 64;
     auto grid = generate_grid(NX, NY, NZ, 2, 2, 2);
     const auto num_vertices = grid.num_vertices();
 
-    implicit_shader::Application app;
-    app.onInit(SHADER_DIR "/single_key.wgsl", num_vertices);
-    app.onCompute(grid.vertices);
-    app.onFinish();
+    implicit_shader::Sphere shader({0, 0, 0}, 0.5);
+    shader.evaluate(grid.gradients);
 
     save_grid(grid);
     return 0;
