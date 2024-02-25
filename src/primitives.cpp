@@ -25,4 +25,10 @@ Plane::Plane(const Point& p, const Point& n)
     m_parameters = {p[0], p[1], p[2], n[0], n[1], n[2]};
 }
 
+Cone::Cone(const Point& apex, const Point& axis, Scalar angle)
+    : ImplicitFunction(SHADER_DIR "/primitives/cone.wgsl", 7)
+{
+    m_parameters = {apex[0], apex[1], apex[2], axis[0], axis[1], axis[2], angle};
+}
+
 } // namespace implicit_shader

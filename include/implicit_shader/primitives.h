@@ -60,7 +60,11 @@ private:
     std::array<Scalar, 7> m_parameters;
 };
 
-class Plane final: public ImplicitFunction
+
+/**
+ * Implicit plane function.
+ */
+class Plane final : public ImplicitFunction
 {
 public:
     /**
@@ -81,6 +85,34 @@ protected:
 
 private:
     std::array<Scalar, 6> m_parameters;
+};
+
+
+/**
+ * Implicit cone function.
+ */
+class Cone final : public ImplicitFunction
+{
+public:
+    /**
+     * Cone constructor.
+     *
+     * @param apex  Cone apex.
+     * @param axis  Cone axis.
+     * @param angle Cone angle in radian.
+     */
+    Cone(const Point& apex, const Point& axis, Scalar angle);
+
+protected:
+    /**
+     * Get the parameters of the implicit function.
+     *
+     * @return A span of the parameters.
+     */
+    std::span<Scalar> get_parameters() override { return m_parameters; }
+
+private:
+    std::array<Scalar, 7> m_parameters;
 };
 
 
