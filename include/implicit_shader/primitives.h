@@ -116,4 +116,32 @@ private:
 };
 
 
+/**
+ * Implicit torus function.
+ */
+class Torus final : public ImplicitFunction
+{
+public:
+    /**
+     * Torus constructor.
+     *
+     * @param center        Torus center.
+     * @param axis          Torus axis.
+     * @param major_radius  Torus major radius.
+     * @param minor_radius  Torus minor radius.
+     */
+    Torus(const Point& center, const Point& axis, Scalar major_radius, Scalar minor_radius);
+
+protected:
+    /**
+     * Get the parameters of the implicit function.
+     *
+     * @return A span of the parameters.
+     */
+    std::span<Scalar> get_parameters() override { return m_parameters; }
+
+private:
+    std::array<Scalar, 8> m_parameters;
+};
+
 } // namespace implicit_shader

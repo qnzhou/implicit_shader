@@ -158,8 +158,10 @@ int main(int, char**)
     auto grid = generate_grid(NX, NY, NZ, 2, 2, 2);
     const auto num_vertices = grid.num_vertices();
 
-    implicit_shader::Cone shader({0, 0, 0}, {1, 2, 0}, M_PI / 6);
+    {
+    implicit_shader::Torus shader({0, 0, 0}, {1, 2, 0}, 0.5, 0.1);
     shader.evaluate(grid.gradients);
+    }
 
     save_grid(grid);
     return 0;

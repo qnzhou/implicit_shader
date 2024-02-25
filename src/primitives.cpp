@@ -31,4 +31,11 @@ Cone::Cone(const Point& apex, const Point& axis, Scalar angle)
     m_parameters = {apex[0], apex[1], apex[2], axis[0], axis[1], axis[2], angle};
 }
 
+Torus::Torus(const Point& center, const Point& axis, Scalar major_radius, Scalar minor_radius)
+    : ImplicitFunction(SHADER_DIR "/primitives/torus.wgsl", 8)
+{
+    m_parameters =
+        {center[0], center[1], center[2], axis[0], axis[1], axis[2], major_radius, minor_radius};
+}
+
 } // namespace implicit_shader
