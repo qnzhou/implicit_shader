@@ -144,4 +144,29 @@ private:
     std::array<Scalar, 8> m_parameters;
 };
 
+
+class Capsule final : public ImplicitFunction
+{
+public:
+    /**
+     * Capsule constructor.
+     *
+     * @param p1     First end point of the capsule.
+     * @param p2     Second end point of the capsule.
+     * @param radius Capsule radius.
+     */
+    Capsule(const Point& p1, const Point& p2, Scalar radius);
+
+protected:
+    /**
+     * Get the parameters of the implicit function.
+     *
+     * @return A span of the parameters.
+     */
+    std::span<Scalar> get_parameters() override { return m_parameters; }
+
+private:
+    std::array<Scalar, 7> m_parameters;
+};
+
 } // namespace implicit_shader

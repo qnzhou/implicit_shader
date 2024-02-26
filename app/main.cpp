@@ -159,8 +159,8 @@ int main(int, char**)
     const auto num_vertices = grid.num_vertices();
 
     {
-    implicit_shader::Torus shader({0, 0, 0}, {1, 2, 0}, 0.5, 0.1);
-    shader.evaluate(grid.gradients);
+        implicit_shader::Capsule shader({0, 0, 0}, {0.5, 0.5, 0}, 0.2);
+        shader.evaluate(grid.gradients);
     }
 
     save_grid(grid);

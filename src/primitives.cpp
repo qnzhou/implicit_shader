@@ -38,4 +38,10 @@ Torus::Torus(const Point& center, const Point& axis, Scalar major_radius, Scalar
         {center[0], center[1], center[2], axis[0], axis[1], axis[2], major_radius, minor_radius};
 }
 
+Capsule::Capsule(const Point& p1, const Point& p2, Scalar radius)
+    : ImplicitFunction(SHADER_DIR "/primitives/capsule.wgsl", 7)
+{
+    m_parameters = {p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], radius};
+}
+
 } // namespace implicit_shader
