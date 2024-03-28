@@ -1,33 +1,53 @@
 # Implicit Shader
 
-This library provides evaluation function for implicit surfaces defined as WGSL shaders.
+This library provides function and gradient evaluation for implicit surfaces defined as WGSL shaders.
+The following types of implicit surface are supported:
+* Sphere
+* Cylinder
+* Plane
+* Cone
+* Torus
+* Capsule
+* Duchon's interpolant (i.e. [VIPSS](https://www.cs.wustl.edu/~taoju/research/vipss.pdf))
 
-Here is the code snippet for evaluating the function at an array of points.
+## Creation
+
+To create primitive implicit surfaces:
 
 ```c++
-#include <implicit_shader/Application.h>
+#include <implicit_shader/primitives.h>
 
-// Input/output buffer.
-// The x,y,z values are the evaluation points.
-// The d values are placeholder for storing the evaluation result.
-std::vector<float> buffer = {
-    x0, y0, z0, d0,
-    x1, y1, z1, d1,
-    ...
-};
-size_t num_pts = buffer.size() / 4;
+using namespace implicit_shader;
 
-// Invoke the shader.
-implicit_shader::Application app;
-app.onInit(shader_filename, num_pts);
-app.onCompute(buffer);
-app.onFinish();
-
-// The d values in `buffer` has been udpated.
+Sphere fn({0, 0, 0}, 1); // center, radius
+Cylinder fn({0, 0, 0}, {1, 0, 0}, 0.5); // end point 1, end point 2, radius
+Plane fn({0, 0, 0}, {0, 0, 1}); // point, normal
+Cone fn({0, 0, 0}, {0, 0, 1}, M_PI / 2); // apex, axis, angle (in radians)
+Torus fn({0, 0, 0}, {0, 0, 1}, 2, 0.5); // center, axis, major radius, minor radius
+Capsule fn({0, 0, 0}, {1, 0, 0}, 0.5); // end point 1, end point 2, radius
 ```
 
-## Shader
+To create Duchon's interpolant:
 
-See the [cube.wgsl](shaders/cube.wgsl) as an example to create implicit function shaders.
+```c++
+#include <implicit_shader/Duchon.h>
 
-A more comple example is [key.wgsl](shaders/key.wgsl).
+using namespace implicit_shader;
+
+Duchon fn(
+    {...}, // A flat array of control points (row major).
+    {...}, // A flat array of RBF coefficients (column major).
+    {...}  // A flat array of affine coefficients (column major).
+);
+```
+
+## Usage
+
+```c++
+// Input/output buffer
+// As input, (xi, yi, zi) are the query points.
+// As ouptut, wi is the function value, (xi, yi, zi) is the function gradient.
+std::vector<float> buffer = {x0, y0, z0, w0, x1, y1, z1, w1, ...};
+
+fn.evaluate(buffer);
+```
