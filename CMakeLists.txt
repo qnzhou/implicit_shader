@@ -24,3 +24,20 @@ set_target_properties(implicit_shader PROPERTIES
     COMPILE_WARNING_AS_ERROR ON
 )
 target_copy_webgpu_binaries(implicit_shader)
+
+option(IMPLICIT_SHADER_BUILD_TESTS "Build tests" OFF)
+if (IMPLICIT_SHADER_BUILD_TESTS)
+    include(CTest)
+    enable_testing()
+    include(catch2)
+
+    file(GLOB TEST_FILES "${CMAKE_CURRENT_LIST_DIR}/tests/*.cpp")
+    add_executable(implicit_shader_tests ${TEST_FILES})
+    target_link_libraries(implicit_shader_tests PRIVATE
+        implicit_shader::imshader
+        Catch2::Catch2WithMain)
+    set_target_properties(implicit_shader_tests PROPERTIES
+        CXX_STANDARD 20
+        COMPILE_WARNING_AS_ERROR ON
+    )
+endif()
