@@ -16,6 +16,7 @@ set_target_properties(imshader PROPERTIES
 target_include_directories(imshader PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_compile_definitions(imshader PUBLIC -DSHADER_DIR="${CMAKE_CURRENT_LIST_DIR}/shaders/")
 add_library(implicit_shader::imshader ALIAS imshader)
+add_library(implicit_shader::implicit_shader ALIAS imshader)
 
 add_executable(implicit_shader ${CMAKE_CURRENT_LIST_DIR}/app/main.cpp)
 target_link_libraries(implicit_shader webgpu::webgpu implicit_shader::imshader mshio::mshio)
@@ -30,11 +31,13 @@ if (IMPLICIT_SHADER_BUILD_TESTS)
     include(CTest)
     enable_testing()
     include(catch2)
+    include(implicit_functions)
 
     file(GLOB TEST_FILES "${CMAKE_CURRENT_LIST_DIR}/tests/*.cpp")
     add_executable(implicit_shader_tests ${TEST_FILES})
     target_link_libraries(implicit_shader_tests PRIVATE
         implicit_shader::imshader
+        implicit_functions::implicit_functions
         Catch2::Catch2WithMain)
     set_target_properties(implicit_shader_tests PROPERTIES
         CXX_STANDARD 20

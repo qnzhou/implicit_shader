@@ -15,7 +15,7 @@ class Shader;
 class ImplicitFunction
 {
 public:
-    static constexpr size_t BATCH_SIZE = 1024;
+    static constexpr size_t BATCH_SIZE = 1024 * 1024;
 
     ImplicitFunction(const std::string shader_path, size_t num_parameters);
     virtual ~ImplicitFunction();
