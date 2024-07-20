@@ -378,19 +378,79 @@ TEST_CASE("benchmark", "[implicit_shader][duchon][.benchmark]")
         buffer[i * 4 + 1] = float((i / N) % N) / float(N);
         buffer[i * 4 + 2] = float(i / N / N) / float(N);
     }
-    BENCHMARK("Shader")
+    BENCHMARK("shader - 1")
     {
-        return fn.evaluate(buffer);
+        return fn.evaluate({buffer.data(), 4});
     };
-    BENCHMARK("function")
+    BENCHMARK("function - 1")
     {
         float value = 0;
         float gx, gy, gz;
-        for (int i = 0; i < N * N * N; ++i) {
+        for (int i = 0; i < 1; ++i) {
             value += fn2.evaluate(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2]);
             fn2.evaluate_gradient(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2], gx, gy, gz);
             value += gx + gy + gz;
         }
         return value;
     };
+    BENCHMARK("shader - 10")
+    {
+        return fn.evaluate({buffer.data(), 40});
+    };
+    BENCHMARK("function - 10")
+    {
+        float value = 0;
+        float gx, gy, gz;
+        for (int i = 0; i < 10; ++i) {
+            value += fn2.evaluate(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2]);
+            fn2.evaluate_gradient(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2], gx, gy, gz);
+            value += gx + gy + gz;
+        }
+        return value;
+    };
+    BENCHMARK("shader - 1k")
+    {
+        return fn.evaluate({buffer.data(), 4000});
+    };
+    BENCHMARK("function - 1k")
+    {
+        float value = 0;
+        float gx, gy, gz;
+        for (int i = 0; i < 1000; ++i) {
+            value += fn2.evaluate(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2]);
+            fn2.evaluate_gradient(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2], gx, gy, gz);
+            value += gx + gy + gz;
+        }
+        return value;
+    };
+    BENCHMARK("shader - 10k")
+    {
+        return fn.evaluate({buffer.data(), 40000});
+    };
+    BENCHMARK("function - 10k")
+    {
+        float value = 0;
+        float gx, gy, gz;
+        for (int i = 0; i < 10000; ++i) {
+            value += fn2.evaluate(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2]);
+            fn2.evaluate_gradient(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2], gx, gy, gz);
+            value += gx + gy + gz;
+        }
+        return value;
+    };
+    //BENCHMARK("shader - 1M")
+    //{
+    //    return fn.evaluate(buffer);
+    //};
+    //BENCHMARK("function - 1M")
+    //{
+    //    float value = 0;
+    //    float gx, gy, gz;
+    //    for (int i = 0; i < N * N * N; ++i) {
+    //        value += fn2.evaluate(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2]);
+    //        fn2.evaluate_gradient(buffer[i * 4], buffer[i * 4 + 1], buffer[i * 4 + 2], gx, gy, gz);
+    //        value += gx + gy + gz;
+    //    }
+    //    return value;
+    //};
 }
