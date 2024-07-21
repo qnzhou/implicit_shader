@@ -121,14 +121,19 @@ TEST_CASE("primitives", "[implicit_shader]")
     {
         implicit_shader::Sphere fn({0, 0, 0}, 1);
 
-        std::array<float, 4> buffer;
+        std::array<float, 8> buffer;
 
-        buffer = {1, 0, 0, 0};
+        buffer = {1, 0, 0, 0, 0, 0, 0, 0};
         fn.evaluate(buffer);
         REQUIRE_THAT(buffer[0], Catch::Matchers::WithinAbs(1, 1e-6));
         REQUIRE_THAT(buffer[1], Catch::Matchers::WithinAbs(0, 1e-6));
         REQUIRE_THAT(buffer[2], Catch::Matchers::WithinAbs(0, 1e-6));
         REQUIRE_THAT(buffer[3], Catch::Matchers::WithinAbs(0, 1e-6));
+
+        REQUIRE_THAT(buffer[4], Catch::Matchers::WithinAbs(0, 1e-6));
+        REQUIRE_THAT(buffer[5], Catch::Matchers::WithinAbs(0, 1e-6));
+        REQUIRE_THAT(buffer[6], Catch::Matchers::WithinAbs(0, 1e-6));
+        REQUIRE_THAT(buffer[7], Catch::Matchers::WithinAbs(-1, 1e-6));
 
         finite_difference_check(fn, {10, 10, 10});
     }
