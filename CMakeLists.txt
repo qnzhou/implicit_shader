@@ -18,13 +18,16 @@ target_compile_definitions(imshader PUBLIC -DSHADER_DIR="${CMAKE_CURRENT_LIST_DI
 add_library(implicit_shader::imshader ALIAS imshader)
 add_library(implicit_shader::implicit_shader ALIAS imshader)
 
-add_executable(implicit_shader ${CMAKE_CURRENT_LIST_DIR}/app/main.cpp)
-target_link_libraries(implicit_shader webgpu::webgpu implicit_shader::imshader mshio::mshio)
-set_target_properties(implicit_shader PROPERTIES
-    CXX_STANDARD 20
-    COMPILE_WARNING_AS_ERROR ON
-)
-target_copy_webgpu_binaries(implicit_shader)
+option(IMPLICIT_SHADER_BUILD_EXAMPLE "Build example" OFF)
+if (IMPLICIT_SHADER_BUILD_EXAMPLE)
+    add_executable(implicit_shader ${CMAKE_CURRENT_LIST_DIR}/app/main.cpp)
+    target_link_libraries(implicit_shader webgpu::webgpu implicit_shader::imshader mshio::mshio)
+    set_target_properties(implicit_shader PROPERTIES
+        CXX_STANDARD 20
+        COMPILE_WARNING_AS_ERROR ON
+    )
+    target_copy_webgpu_binaries(implicit_shader)
+endif()
 
 option(IMPLICIT_SHADER_BUILD_TESTS "Build tests" OFF)
 if (IMPLICIT_SHADER_BUILD_TESTS)
