@@ -10,6 +10,9 @@ The following types of implicit surface are supported:
 * Capsule
 * Duchon's interpolant (i.e. [VIPSS](https://www.cs.wustl.edu/~taoju/research/vipss.pdf))
 
+> [!NOTE]
+> This library closely follows the examples provided by the wonderful [WebGPU C++ Guild](https://eliemichel.github.io/LearnWebGPU/).
+
 ## Creation
 
 To create primitive implicit surfaces:
